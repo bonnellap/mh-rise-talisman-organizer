@@ -2,17 +2,12 @@ package application;
 	
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -22,13 +17,11 @@ import org.javatuples.Pair;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
-import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -40,25 +33,21 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import javafx.util.converter.IntegerStringConverter;
 import javafx.util.Callback;
+import javafx.util.converter.IntegerStringConverter;
 import skill.Skill;
 import skill.SkillTable;
 import talisman.Talisman;
@@ -68,7 +57,6 @@ import talisman.TalismanTable;
 
 public class Main extends Application {
 	
-	private SkillTable skills = null;
 	private TalismanTable talismans = new TalismanTable();
 	private boolean isTalismanFileUpdated = true;
 	
@@ -267,9 +255,15 @@ public class Main extends Application {
 				}
 			});
 			
-			skill1Col.getColumns().addAll(skill1NameCol, skill1LevelCol);
-			skill2Col.getColumns().addAll(skill2NameCol, skill2LevelCol);
-			table.getColumns().addAll(skill1Col, skill2Col, slot1Col, slot2Col, slot3Col);
+			skill1Col.getColumns().add(skill1NameCol);
+			skill1Col.getColumns().add(skill1LevelCol);
+			skill2Col.getColumns().add(skill2NameCol);
+			skill2Col.getColumns().add(skill2LevelCol);
+			table.getColumns().add(skill1Col);
+			table.getColumns().add(skill2Col);
+			table.getColumns().add(slot1Col);
+			table.getColumns().add(slot2Col);
+			table.getColumns().add(slot3Col);
 			table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			table.setPlaceholder(new Label("No talismans in table"));
 			

@@ -6,12 +6,6 @@ import java.util.List;
 
 import org.javatuples.Pair;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import skill.Skill;
 
 public class Talisman {
