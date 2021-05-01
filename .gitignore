@@ -1,4 +1,4 @@
-# Maven files ignored
+# Maven Files
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -11,13 +11,14 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
-# Java files ignored
+# Java Files
 *.class
 *.log
 *.ctxt
 .mtj.tmp/
+app.properties
 
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.nar
@@ -25,3 +26,6 @@ buildNumber.properties
 *.zip
 *.tar.gz
 *.rar
+
+# Eclipse Files
+.settings/
