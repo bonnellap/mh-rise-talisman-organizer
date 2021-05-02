@@ -1,17 +1,8 @@
 package com.github.bonnellap.mh_rise_talisman_organizer;
 
-import com.github.bonnellap.mh_rise_talisman_organizer.application.FxUtil;
-import com.github.bonnellap.mh_rise_talisman_organizer.application.OptionsModal;
-import com.github.bonnellap.mh_rise_talisman_organizer.application.SkillConverter;
-import com.github.bonnellap.mh_rise_talisman_organizer.skill.Skill;
-import com.github.bonnellap.mh_rise_talisman_organizer.skill.SkillTable;
-import com.github.bonnellap.mh_rise_talisman_organizer.talisman.Talisman;
-import com.github.bonnellap.mh_rise_talisman_organizer.talisman.TalismanComparison;
-import com.github.bonnellap.mh_rise_talisman_organizer.talisman.TalismanTable;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -22,6 +13,15 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.javatuples.Pair;
+
+import com.github.bonnellap.mh_rise_talisman_organizer.application.FxUtil;
+import com.github.bonnellap.mh_rise_talisman_organizer.application.OptionsModal;
+import com.github.bonnellap.mh_rise_talisman_organizer.application.SkillConverter;
+import com.github.bonnellap.mh_rise_talisman_organizer.skill.Skill;
+import com.github.bonnellap.mh_rise_talisman_organizer.skill.SkillTable;
+import com.github.bonnellap.mh_rise_talisman_organizer.talisman.Talisman;
+import com.github.bonnellap.mh_rise_talisman_organizer.talisman.TalismanComparison;
+import com.github.bonnellap.mh_rise_talisman_organizer.talisman.TalismanTable;
 
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -74,12 +74,12 @@ public class App extends Application {
 	@Override
 	public void init() {
 		// Read settings file
-		FileInputStream in = null;
+		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+		InputStream stream = classloader.getResourceAsStream("app.properties");
+		
 		try {
-			File settingsFile = new File(SETTINGS_PATH);
-			settingsFile.createNewFile(); // Create a settings file if it doesn't already exist
-			in = new FileInputStream(settingsFile);
-			props.load(in);
+			// Load properties from input stream
+			props.load(stream);
 			
 			if (props.getProperty("autoLoadTalismans") != null && props.getProperty("autoLoadTalismans").equals("true") && props.getProperty("talismanFilePath") != null) {
 				try {
@@ -94,8 +94,8 @@ public class App extends Application {
 			showExceptionMsg("Unable to load or create settings file. Your settings may not be saved.", e);
 		} finally {
 			try {
-				if (in != null) {
-					in.close();
+				if (stream != null) {
+					stream.close();
 				}
 			} catch (Exception e) {
 				// Do nothing
@@ -556,10 +556,10 @@ public class App extends Application {
 					}
 					File file = null;
 					try {
-						file = fileChooser.showOpenDialog(primaryStage);
+						file = fileChooser.showSaveDialog(primaryStage);
 					} catch (Exception e) {
 						fileChooser.setInitialDirectory(null);
-						file = fileChooser.showOpenDialog(primaryStage);
+						file = fileChooser.showSaveDialog(primaryStage);
 					}
 					if (file != null) {
 						try {
