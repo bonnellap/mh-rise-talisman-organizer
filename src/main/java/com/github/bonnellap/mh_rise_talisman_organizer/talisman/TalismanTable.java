@@ -132,7 +132,7 @@ public class TalismanTable extends ArrayList<Talisman> {
 				if (comparison == -1) {
 					// t1 is obsolete
 					if (!obsoleteTalismans.contains(t1) ) {
-						if (explain) System.out.println(t1.toString() + " < " + t2.toString());
+						if (explain) System.out.println("{" + t1.toString() + "} < {" + t2.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t2DecosNeeded));
 						obsoleteTalismans.add(t1);
 					}
 					i.remove();
@@ -140,12 +140,16 @@ public class TalismanTable extends ArrayList<Talisman> {
 				} else if (comparison == 1) {
 					// t2 is obsolete
 					if (!obsoleteTalismans.contains(t2) ) {
-						if (explain) System.out.println(t2.toString() + " < " + t1.toString());
+						if (explain) System.out.println("{" + t2.toString() + "} < {" + t1.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t1DecosNeeded));
 						obsoleteTalismans.add(t2);
 					}
+				} else if (t1.equals(t2)) {
+					if (explain) System.out.println("{" + t2.toString() + "} = {" + t1.toString() + "} Duplicated Talisman");
+					obsoleteTalismans.add(t2);
 				}
 			}
 		}
+		if (explain) System.out.println();
 		return obsoleteTalismans;
 	}
 	
@@ -215,6 +219,18 @@ public class TalismanTable extends ArrayList<Talisman> {
 			}
 			System.out.println();
 		}
+	}
+	
+	public static String skillListToString (List<Skill> skillList) {
+		String str = "[";
+		for (int i = 0; i < skillList.size(); i++) {
+			str += skillList.get(i).name;
+			if (i + 1 != skillList.size()) {
+				str += ", ";
+			}
+		}
+		str += "]";
+		return str;
 	}
 
 }

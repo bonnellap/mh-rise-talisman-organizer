@@ -58,12 +58,13 @@ public class FxUtil {
                         caretPos = comboBox.getEditor().getCaretPosition();
                     }
                 } else if (event.getCode() == KeyCode.TAB) {
-                	if (!comboBox.isShowing()) {
+                	/*if (!comboBox.isShowing()) {
                         comboBox.show();
                     }
                 	if (comboBox.getEditor().getText() != null) {
                         moveCaret(comboBox.getEditor().getText().length());
-                    }
+                    }*/
+                	return;
                 } else if (event.getCode() == KeyCode.ENTER) {
                     return;
                 }

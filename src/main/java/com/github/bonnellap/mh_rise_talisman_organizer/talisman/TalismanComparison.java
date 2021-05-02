@@ -10,9 +10,19 @@ import com.github.bonnellap.mh_rise_talisman_organizer.skill.Skill;
 
 
 public class TalismanComparison {
+	
+	public static String explain = "";
+	public static List<Skill> t1DecosNeeded = new ArrayList<Skill>();
+	public static List<Skill> t2DecosNeeded = new ArrayList<Skill>();
 
+	/**
+	 * Compares 2 Talismans and determines which Talisman makes the other obsolete using decorations and slot counts.
+	 * @param t1
+	 * @param t2
+	 * @return -1 if t2 makes t1 obsolete, 1 if t1 makes t2 obsolete, or 0 if neither make the other obsolete.
+	 */
 	public static int compare(Talisman t1, Talisman t2) {
-		// TODO Auto-generated method stub
+		explain = "";
 		
 		Talisman tClone1 = new Talisman(t1);
 		Talisman tClone2 = new Talisman(t2);
@@ -20,6 +30,8 @@ public class TalismanComparison {
 		boolean t1WithinT2 = true;
 		List<Integer> t1WastedSlots = new ArrayList<Integer>();
 		List<Integer> t2WastedSlots = new ArrayList<Integer>();
+		t1DecosNeeded.clear();
+		t2DecosNeeded.clear();
 		// Try to make t2 within t1
 		for (Pair<Skill, Integer> t2SkillPair : t2.getSkillList()) {
 			// The amount of skill levels needed as decorations
@@ -30,6 +42,8 @@ public class TalismanComparison {
 				t1WastedSlots.add(wastedSlots);
 				if (wastedSlots == -1) {
 					t2WithinT1 = false;
+				} else {
+					t1DecosNeeded.add(t2SkillPair.getValue0());
 				}
 				remainingSkillLevels--;
 			}
@@ -47,6 +61,8 @@ public class TalismanComparison {
 				t2WastedSlots.add(wastedSlots);
 				if (wastedSlots == -1) {
 					t1WithinT2 = false;
+				} else {
+					t2DecosNeeded.add(t1SkillPair.getValue0());
 				}
 				remainingSkillLevels--;
 			}
@@ -54,34 +70,42 @@ public class TalismanComparison {
 				break;
 			}
 		}
+		
+		int slotComparison = compareSlotLists(tClone1, tClone2);
+		int slotComparison1 = compareSlotLists(t1, tClone2);
+		int slotComparison2 = compareSlotLists(tClone1, t2);
+		
+		//explain += "tClone1 = " + tClone1.toString();
+		//explain += ", tClone2 = " + tClone2.toString();
+		//explain += ", t2 within t1 " + t2WithinT1;
+		//explain += ", t1 within t2 " + t1WithinT2;
+		//explain += ", slotComparison1 = " + slotComparison1;
+		//explain += ", slotComparison2 = " + slotComparison2;
 		//System.out.println("\ntClone1 = " + tClone1.toString());
 		//System.out.println("tClone2 = " + tClone2.toString());
 		//System.out.println("t2 within t1 = " + t2WithinT1);
 		//System.out.println("t1 within t2 = " + t1WithinT2);
 		//printList(t1WastedSlots);
 		//printList(t2WastedSlots);
-		int slotComparison = compareSlotLists(tClone1, tClone2);
 		//System.out.println("slot comparison = " + slotComparison);
 		if (t2WithinT1 && t1WithinT2) {
-			int slotComparison1 = compareSlotLists(t1, tClone2);
-			int slotComparison2 = compareSlotLists(tClone1, t2);
 			//System.out.println(slotComparison1);
 			//System.out.println(slotComparison2);
 			if (slotComparison1 == slotComparison2) {
 				return slotComparison1;
 			}
-			if (slotComparison1 < 1 && slotComparison2 < 1) {
+			if (slotComparison1 <= 0 && slotComparison2 <= 0) {
 				return -1;
 			}
-			if (slotComparison1 > -1 && slotComparison2 > -1) {
+			if (slotComparison1 >= 0 && slotComparison2 >= 0) {
 				return 1;
 			}
 			return 0;
 			//return slotComparison;
-		} else if (t2WithinT1 && slotComparison > 0) {
+		} else if (t2WithinT1 && slotComparison >= 0 && slotComparison2 >= 0) {
 			// t2 is worse than t1
 			return 1;
-		} else if (t1WithinT2 && slotComparison < 0) {
+		} else if (t1WithinT2 && slotComparison <= 0 && slotComparison1 <= 0) {
 			// t1 is worse than t2
 			return -1;
 		}

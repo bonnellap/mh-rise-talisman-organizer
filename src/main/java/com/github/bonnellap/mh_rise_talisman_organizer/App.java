@@ -143,6 +143,7 @@ public class App extends Application {
 			
 			// Create Table elements
 			TableView<Talisman> table = new TableView<>();
+			table.setPrefWidth(800);
 			TableColumn<Talisman, String> skill1Col = new TableColumn<>("Skill 1");
 			TableColumn<Talisman, String> skill1NameCol = new TableColumn<>("Name");
 			TableColumn<Talisman, Integer> skill1LevelCol = new TableColumn<>("Level");
@@ -311,13 +312,13 @@ public class App extends Application {
 			cbSlot3.setPromptText("Slot 3");
 			
 			// Add ComboBox autosuggest
-			FxUtil.autoCompleteComboBoxPlus(cbSkill1, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().contains(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
-			FxUtil.autoCompleteComboBoxPlus(cbLevel1, true,  (typedText, itemToCompare) -> itemToCompare.toString().contains(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSkill2, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().contains(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
-			FxUtil.autoCompleteComboBoxPlus(cbLevel2, true, (typedText, itemToCompare) -> itemToCompare.toString().contains(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot1, false, (typedText, itemToCompare) -> itemToCompare.toString().contains(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot2, false, (typedText, itemToCompare) -> itemToCompare.toString().contains(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot3, false, (typedText, itemToCompare) -> itemToCompare.toString().contains(typedText.toLowerCase()));
+			FxUtil.autoCompleteComboBoxPlus(cbSkill1, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().startsWith(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
+			FxUtil.autoCompleteComboBoxPlus(cbLevel1, true,  (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
+			FxUtil.autoCompleteComboBoxPlus(cbSkill2, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().startsWith(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
+			FxUtil.autoCompleteComboBoxPlus(cbLevel2, true, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
+			FxUtil.autoCompleteComboBoxPlus(cbSlot1, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
+			FxUtil.autoCompleteComboBoxPlus(cbSlot2, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
+			FxUtil.autoCompleteComboBoxPlus(cbSlot3, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
 			
 			// Add StringConverters
 			cbSkill1.setConverter(new SkillConverter());
@@ -388,7 +389,7 @@ public class App extends Application {
 					}
 					
 					// Add new talisman to talisman list
-					talismans.add(createTalisman(cbSkill1.getValue(), cbLevel1.getValue(), cbSkill2.getValue(), cbLevel2.getValue(), cbSlot1.getValue(), cbSlot2.getValue(), cbSlot3.getValue()));
+					talismans.add(0, createTalisman(cbSkill1.getValue(), cbLevel1.getValue(), cbSkill2.getValue(), cbLevel2.getValue(), cbSlot1.getValue(), cbSlot2.getValue(), cbSlot3.getValue()));
 					isTalismanFileUpdated = false;
 					refreshTable(table);
 					
@@ -478,7 +479,7 @@ public class App extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					if (btnShowObsolete.getText() == "Show Obsolete Talismans") {
-						TalismanTable obsolete = talismans.optimizeTalismans();
+						TalismanTable obsolete = talismans.optimizeTalismans(true);
 						table.setItems(FXCollections.observableArrayList(obsolete));
 						btnShowObsolete.setText("Show All Talismans");
 					} else {
