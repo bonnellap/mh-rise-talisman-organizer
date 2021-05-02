@@ -427,7 +427,7 @@ public class App extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					TalismanTable foundTalismans = new TalismanTable();
-					for (Talisman t : talismans) {
+					for (Talisman t : table.getItems()) {
 						// Find skill 1
 						if (cbSkill1.getValue() != null) {
 							Pair<Skill, Integer> tSkill1 = t.getSkillPair(cbSkill1.getValue());
@@ -464,12 +464,22 @@ public class App extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					ObservableList<Talisman> tList = table.getSelectionModel().getSelectedItems();
-					if (tList != null && tList.size() > 0) {
-						for (Talisman t : tList) {
-							talismans.remove(t);
+					ObservableList<Integer> tIndicies = table.getSelectionModel().getSelectedIndices();
+					if (tIndicies != null && tList.size() > 0) {
+						for (int index : tIndicies) {
+							Talisman tRemove = table.getItems().get(index);
+							// Remove talisman from full talisman list
+							for (int i = 0; i < talismans.size(); i++) {
+								if (tRemove == talismans.get(i)) {
+									talismans.remove(i);
+									break;
+								}
+							}
+							// Remove talisman from table's list
+							table.getItems().remove(index);
 						}
+						table.refresh();
 						isTalismanFileUpdated = false;
-						refreshTable(table);
 					}
 				}
 			};
