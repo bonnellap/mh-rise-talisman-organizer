@@ -42,6 +42,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
@@ -62,6 +63,7 @@ import javafx.util.converter.IntegerStringConverter;
 public class App extends Application {
 	
 	private TalismanTable talismans = new TalismanTable();
+	private List<Talisman> obsoleteTalismans = new ArrayList<>();
 	private boolean isTalismanFileUpdated = true;
 	
 	private static Stage pStage = null;
@@ -157,7 +159,6 @@ public class App extends Application {
 			skill1NameCol.setCellValueFactory(new Callback<CellDataFeatures<Talisman, String>, ObservableValue<String>>() {
 				@Override
 				public ObservableValue<String> call(CellDataFeatures<Talisman, String> param) {
-					// TODO Auto-generated method stub
 					if (param.getValue() != null) {
 						Skill skill = param.getValue().getSkill(0);
 						if (skill != null) {
@@ -170,10 +171,32 @@ public class App extends Application {
 				}
 			});
 			
+			skill1NameCol.setCellFactory(column -> {
+				return new TableCell<Talisman, String>() {
+					@Override
+					protected void updateItem(String item, boolean empty) {
+						super.updateItem(item, empty);
+						
+						setText(item == null ? "" : getItem());
+						
+						TableRow<Talisman> row = getTableRow();
+						if (!empty && item != null) {
+							// Add row highlighting for obsolete talismans
+							if (row != null && obsoleteTalismans.contains(row.getItem())) {
+								row.setStyle("-fx-control-inner-background: lightcoral; -fx-accent: derive(-fx-control-inner-background, -40%); -fx-cell-hover-color: derive(-fx-control-inner-background, -20%); -fx-selection-bar-non-focused: derive(-fx-control-inner-background, -20%);");
+							} else {
+								row.setStyle("");
+							}
+						} else {
+							row.setStyle("");
+						}
+					}
+				};
+			});
+			
 			skill1LevelCol.setCellValueFactory(new Callback<CellDataFeatures<Talisman, Integer>, ObservableValue<Integer>>() {
 				@Override
 				public ObservableValue<Integer> call(CellDataFeatures<Talisman, Integer> param) {
-					// TODO Auto-generated method stub
 					if (param.getValue() != null) {
 						int level = param.getValue().getSkillLevel(0);
 						if (level > 0) {
@@ -189,7 +212,6 @@ public class App extends Application {
 			skill2NameCol.setCellValueFactory(new Callback<CellDataFeatures<Talisman, String>, ObservableValue<String>>() {
 				@Override
 				public ObservableValue<String> call(CellDataFeatures<Talisman, String> param) {
-					// TODO Auto-generated method stub
 					if (param.getValue() != null) {
 						Skill skill = param.getValue().getSkill(1);
 						if (skill != null) {
@@ -279,7 +301,6 @@ public class App extends Application {
 			Button btnEditTalisman = new Button("Edit Talisman");
 			Button btnRemoveTalisman = new Button("Remove Talisman");
 			Button btnFilterTalisman = new Button("Filter Talismans");
-			Button btnShowObsolete = new Button("Show Obsolete Talismans");
 			Button btnResetFields = new Button("Reset Fields");
 			
 			// Create Labels
@@ -390,6 +411,7 @@ public class App extends Application {
 					
 					// Add new talisman to talisman list
 					talismans.add(0, createTalisman(cbSkill1.getValue(), cbLevel1.getValue(), cbSkill2.getValue(), cbLevel2.getValue(), cbSlot1.getValue(), cbSlot2.getValue(), cbSlot3.getValue()));
+					obsoleteTalismans = talismans.optimizeTalismans();
 					isTalismanFileUpdated = false;
 					refreshTable(table);
 					
@@ -416,6 +438,7 @@ public class App extends Application {
 					int index = talismans.indexOf(selectedTalisman);
 					if (index != -1) {
 						talismans.set(index, createTalisman(cbSkill1.getValue(), cbLevel1.getValue(), cbSkill2.getValue(), cbLevel2.getValue(), cbSlot1.getValue(), cbSlot2.getValue(), cbSlot3.getValue()));
+						obsoleteTalismans = talismans.optimizeTalismans();
 						isTalismanFileUpdated = false;
 						refreshTable(table);
 					}
@@ -469,36 +492,17 @@ public class App extends Application {
 						for (int index : tIndicies) {
 							Talisman tRemove = table.getItems().get(index);
 							// Remove talisman from full talisman list
-							for (int i = 0; i < talismans.size(); i++) {
-								if (tRemove == talismans.get(i)) {
-									talismans.remove(i);
-									break;
-								}
-							}
+							talismans.remove(tRemove);
 							// Remove talisman from table's list
 							table.getItems().remove(index);
 						}
+						obsoleteTalismans = talismans.optimizeTalismans();
 						table.refresh();
 						isTalismanFileUpdated = false;
 					}
 				}
 			};
 			btnRemoveTalisman.setOnAction(btnRemoveTalismanActionEvent);
-			
-			EventHandler<ActionEvent> btnShowObsoleteTalismanActionEvent = new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					if (btnShowObsolete.getText() == "Show Obsolete Talismans") {
-						TalismanTable obsolete = talismans.optimizeTalismans(true);
-						table.setItems(FXCollections.observableArrayList(obsolete));
-						btnShowObsolete.setText("Show All Talismans");
-					} else {
-						refreshTable(table);
-						btnShowObsolete.setText("Show Obsolete Talismans");
-					}
-				}
-			};
-			btnShowObsolete.setOnAction(btnShowObsoleteTalismanActionEvent);
 			
 			EventHandler<ActionEvent> btnResetFieldsActionEvent = new EventHandler<ActionEvent>() {
 				@Override
@@ -540,6 +544,7 @@ public class App extends Application {
 						try {
 							props.setProperty("talismanFilePath", file.getAbsolutePath());
 							talismans = new TalismanTable(file);
+							obsoleteTalismans = talismans.optimizeTalismans();
 							isTalismanFileUpdated = true;
 							refreshTable(table);
 						} catch (Exception e) {
@@ -633,7 +638,7 @@ public class App extends Application {
 			addSkillPane.addRow(0, labelSkill1, labelLevel1, labelSkill2, labelLevel2, labelSlot1, labelSlot2, labelSlot3);
 			addSkillPane.addRow(1, cbSkill1, cbLevel1, cbSkill2, cbLevel2, cbSlot1, cbSlot2, cbSlot3);
 			
-			buttonPane.addRow(0, btnAddTalisman, btnEditTalisman, btnRemoveTalisman, btnFilterTalisman, btnShowObsolete, btnResetFields);
+			buttonPane.addRow(0, btnAddTalisman, btnEditTalisman, btnRemoveTalisman, btnFilterTalisman, btnResetFields);
 			
 			tablePane.addRow(0, table);
 			
@@ -644,7 +649,6 @@ public class App extends Application {
 			root.setTop(menuBar);
 			root.setCenter(skillAndTablePane);
 			Scene scene = new Scene(root,800,400);
-			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			pStage = primaryStage;
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("MH Rise Talisman Organizer");
