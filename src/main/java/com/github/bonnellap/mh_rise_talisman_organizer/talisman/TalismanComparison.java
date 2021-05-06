@@ -94,18 +94,18 @@ public class TalismanComparison {
 			if (slotComparison1 == slotComparison2) {
 				return slotComparison1;
 			}
-			if (slotComparison1 <= 0 && slotComparison2 <= 0) {
+			if (slotComparison1 < 0 && slotComparison2 < 0) {
 				return -1;
 			}
-			if (slotComparison1 >= 0 && slotComparison2 >= 0) {
+			if (slotComparison1 > 0 && slotComparison2 > 0) {
 				return 1;
 			}
 			return 0;
 			//return slotComparison;
-		} else if (t2WithinT1 && slotComparison >= 0 && slotComparison2 >= 0) {
+		} else if (t2WithinT1 && slotComparison > 0 && slotComparison2 > 0) {
 			// t2 is worse than t1
 			return 1;
-		} else if (t1WithinT2 && slotComparison <= 0 && slotComparison1 <= 0) {
+		} else if (t1WithinT2 && slotComparison < 0 && slotComparison1 < 0) {
 			// t1 is worse than t2
 			return -1;
 		}

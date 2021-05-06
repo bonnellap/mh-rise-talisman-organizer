@@ -180,15 +180,17 @@ public class App extends Application {
 						setText(item == null ? "" : getItem());
 						
 						TableRow<Talisman> row = getTableRow();
-						if (!empty && item != null) {
-							// Add row highlighting for obsolete talismans
-							if (row != null && obsoleteTalismans.contains(row.getItem())) {
-								row.setStyle("-fx-control-inner-background: lightcoral; -fx-accent: derive(-fx-control-inner-background, -40%); -fx-cell-hover-color: derive(-fx-control-inner-background, -20%); -fx-selection-bar-non-focused: derive(-fx-control-inner-background, -20%);");
+						if (row != null) {
+							if (!empty && item != null) {
+								// Add row highlighting for obsolete talismans
+								if (row != null && obsoleteTalismans.contains(row.getItem())) {
+									row.setStyle("-fx-control-inner-background: lightcoral; -fx-accent: derive(-fx-control-inner-background, -40%); -fx-cell-hover-color: derive(-fx-control-inner-background, -20%); -fx-selection-bar-non-focused: derive(-fx-control-inner-background, -20%);");
+								} else {
+									row.setStyle("");
+								}
 							} else {
 								row.setStyle("");
 							}
-						} else {
-							row.setStyle("");
 						}
 					}
 				};
