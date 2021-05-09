@@ -27,12 +27,12 @@ Defense Boost,7,1
 Diversion,1,1
 Divine Blessing,3,2
 Dragon Attack,5,1
-Dragon Resistance Skill,3,1
+Dragon Resistance,3,1
 Earplugs,5,3
 Evade Extender,3,2
 Evade Window,5,2
 Fire Attack,5,1
-Fire Resistance Skill,3,1
+Fire Resistance,3,1
 Flinch Free,3,1
 Focus,3,2
 Fortify,1,2
@@ -47,7 +47,7 @@ Heroics,5,2
 Horn Maestro,1,1
 Hunger Resistance,3,1
 Ice Attack,5,1
-Ice Resistance Skill,3,1
+Ice Resistance,3,1
 Item Prolonger,3,2
 Jump Master,1,3
 Kushala Blessing,4,
@@ -98,11 +98,11 @@ Stun Resistance,3,1
 Teostra Blessing,4,
 Thunder Alignment,5,
 Thunder Attack,5,1
-Thunder Resistance Skill,3,1
+Thunder Resistance,3,1
 Tremor Resistance,3,2
 Wall Runner,3,2
 Water Attack,5,1
-Water Resistance Skill,3,1
+Water Resistance,3,1
 Weakness Exploit,3,2
 Wide-Range,5,2
 Wind Alignment,5,

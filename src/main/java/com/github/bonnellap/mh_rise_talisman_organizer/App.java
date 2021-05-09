@@ -14,7 +14,7 @@ import java.util.Properties;
 
 import org.javatuples.Pair;
 
-import com.github.bonnellap.mh_rise_talisman_organizer.application.FxUtil;
+import com.github.bonnellap.mh_rise_talisman_organizer.application.FilteredComboBox;
 import com.github.bonnellap.mh_rise_talisman_organizer.application.OptionsModal;
 import com.github.bonnellap.mh_rise_talisman_organizer.application.SkillConverter;
 import com.github.bonnellap.mh_rise_talisman_organizer.skill.Skill;
@@ -48,6 +48,8 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -316,32 +318,17 @@ public class App extends Application {
 			
 			// Create ComboBoxes
 			List<Skill> skillList = SkillTable.getSkillList();
-			List<Integer> slotList1 = Arrays.asList(1, 2, 3);
-			List<Integer> slotList2 = Arrays.asList(1, 2);
-			List<Integer> slotList3 = Arrays.asList(1);
-			ComboBox<Skill> cbSkill1 = new ComboBox<Skill>(FXCollections.observableArrayList(skillList));
-			ComboBox<Integer> cbLevel1 = new ComboBox<Integer>(FXCollections.observableArrayList());
-			ComboBox<Skill> cbSkill2 = new ComboBox<Skill>(FXCollections.observableArrayList(skillList));
-			ComboBox<Integer> cbLevel2 = new ComboBox<Integer>(FXCollections.observableArrayList());
-			ComboBox<Integer> cbSlot1 = new ComboBox<Integer>(FXCollections.observableArrayList(slotList1));
-			ComboBox<Integer> cbSlot2 = new ComboBox<Integer>(FXCollections.observableArrayList(slotList2));
-			ComboBox<Integer> cbSlot3 = new ComboBox<Integer>(FXCollections.observableArrayList(slotList3));
-			cbSkill1.setPromptText("Skill 1 Name");
-			cbLevel1.setPromptText("Skill 1 Level");
-			cbSkill2.setPromptText("Skill 2 Name");
-			cbLevel2.setPromptText("Skill 2 Level");
-			cbSlot1.setPromptText("Slot 1");
-			cbSlot2.setPromptText("Slot 2");
-			cbSlot3.setPromptText("Slot 3");
-			
-			// Add ComboBox autosuggest
-			FxUtil.autoCompleteComboBoxPlus(cbSkill1, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().startsWith(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
-			FxUtil.autoCompleteComboBoxPlus(cbLevel1, true,  (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSkill2, false, (typedText, itemToCompare) -> itemToCompare.name.toLowerCase().startsWith(typedText.toLowerCase()) || itemToCompare.name.equals(typedText));
-			FxUtil.autoCompleteComboBoxPlus(cbLevel2, true, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot1, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot2, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
-			FxUtil.autoCompleteComboBoxPlus(cbSlot3, false, (typedText, itemToCompare) -> itemToCompare.toString().startsWith(typedText.toLowerCase()));
+			skillList.add(0, null);
+			List<Integer> slotList1 = Arrays.asList(null, 1, 2, 3);
+			List<Integer> slotList2 = Arrays.asList(null, 1, 2);
+			List<Integer> slotList3 = Arrays.asList(null, 1);
+			FilteredComboBox<Skill> cbSkill1 = new FilteredComboBox<Skill>(FXCollections.observableArrayList(skillList));
+			FilteredComboBox<Integer> cbLevel1 = new FilteredComboBox<Integer>(FXCollections.observableArrayList());
+			FilteredComboBox<Skill> cbSkill2 = new FilteredComboBox<Skill>(FXCollections.observableArrayList(skillList));
+			FilteredComboBox<Integer> cbLevel2 = new FilteredComboBox<Integer>(FXCollections.observableArrayList());
+			FilteredComboBox<Integer> cbSlot1 = new FilteredComboBox<Integer>(FXCollections.observableArrayList(slotList1));
+			FilteredComboBox<Integer> cbSlot2 = new FilteredComboBox<Integer>(FXCollections.observableArrayList(slotList2));
+			FilteredComboBox<Integer> cbSlot3 = new FilteredComboBox<Integer>(FXCollections.observableArrayList(slotList3));
 			
 			// Add StringConverters
 			cbSkill1.setConverter(new SkillConverter());
@@ -356,7 +343,7 @@ public class App extends Application {
 			EventHandler<ActionEvent> cbSkill1Event = new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent arg0) {
-					int maxSkillLevel = FxUtil.getComboBoxValue(cbSkill1) != null ? FxUtil.getComboBoxValue(cbSkill1).level : 0;
+					int maxSkillLevel = cbSkill1.getComboBoxValue() != null ? cbSkill1.getComboBoxValue().level : 0;
 					Integer[] levelArray = new Integer[maxSkillLevel];
 					for (int i = 0; i < maxSkillLevel; i++) {
 						levelArray[i] = i + 1;
@@ -369,7 +356,7 @@ public class App extends Application {
 			EventHandler<ActionEvent> cbSkill2Event = new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent arg0) {
-					int maxSkillLevel = FxUtil.getComboBoxValue(cbSkill2) != null ? FxUtil.getComboBoxValue(cbSkill2).level : 0;
+					int maxSkillLevel = cbSkill2.getComboBoxValue() != null ? cbSkill2.getComboBoxValue().level : 0;
 					Integer[] levelArray = new Integer[maxSkillLevel];
 					for (int i = 0; i < maxSkillLevel; i++) {
 						levelArray[i] = i + 1;
@@ -439,6 +426,25 @@ public class App extends Application {
 					}
 					int index = talismans.indexOf(selectedTalisman);
 					if (index != -1) {
+						// Check for talisman errors
+						String errorMsg = "";
+						if (cbSkill1.getValue() == null) {
+							errorMsg += "Skill 1 Name must have a value.\n";
+						}
+						if (cbLevel1.getValue() == null) {
+							errorMsg += "Skill 1 Level must have a value.\n";
+						}
+						if (cbSkill2.getValue() != null && cbLevel2.getValue() == null) {
+							errorMsg += "Skill 2 Level must have a value.\n";
+						}
+						if (cbSkill1.getValue() != null && cbSkill2.getValue() != null && cbSkill1.getValue().equals(cbSkill2.getValue())) {
+							errorMsg += "Skill 1 Name cannot be the same as Skill 2 Name.\n";
+						}
+						if (!errorMsg.equals("")) {
+							showErrorMsg("Error", "The talisman you entered cannot be added.", errorMsg);
+							return;
+						}
+						
 						talismans.set(index, createTalisman(cbSkill1.getValue(), cbLevel1.getValue(), cbSkill2.getValue(), cbLevel2.getValue(), cbSlot1.getValue(), cbSlot2.getValue(), cbSlot3.getValue()));
 						obsoleteTalismans = talismans.optimizeTalismans();
 						isTalismanFileUpdated = false;
