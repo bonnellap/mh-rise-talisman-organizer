@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,43 +61,23 @@ public class SkillTable {
 			}
 		}
 	}*/
-	public static void setSkills(String filePath) {
-		BufferedReader csvReader = null;
-		FileReader fileReader = null;
-		try {
-			fileReader = new FileReader(new File(filePath));
-			csvReader = new BufferedReader(fileReader);
-			String line; // Full line of data from the csv
-			boolean headerLine = true; // Keeps track of the header line
-			while ((line = csvReader.readLine()) != null) {
-				if (!headerLine) {
-					// Splits the full line using the comma separator
-					String[] skillArray = line.split(",");
-					
-					// Gets all data from split line
-					String name = skillArray[0];
-					int level = Integer.parseInt(skillArray[1]);
-					int slot = skillArray.length > 2 ? Integer.parseInt(skillArray[2]) : 0;
-					
-					// Add skill to the data table
-					data.add(new Skill(name, level, slot));
-				} else {
-					headerLine = false;
-				}
-			}
-			csvReader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (csvReader != null) {
-					csvReader.close();
-				}
-				if (fileReader != null) {
-					fileReader.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+	public static void setSkills(BufferedReader csvReader) throws IOException {
+		String line; // Full line of data from the csv
+		boolean headerLine = true; // Keeps track of the header line
+		while ((line = csvReader.readLine()) != null) {
+			if (!headerLine) {
+				// Splits the full line using the comma separator
+				String[] skillArray = line.split(",");
+				
+				// Gets all data from split line
+				String name = skillArray[0];
+				int level = Integer.parseInt(skillArray[1]);
+				int slot = skillArray.length > 2 ? Integer.parseInt(skillArray[2]) : 0;
+				
+				// Add skill to the data table
+				data.add(new Skill(name, level, slot));
+			} else {
+				headerLine = false;
 			}
 		}
 	}

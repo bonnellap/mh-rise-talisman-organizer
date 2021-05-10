@@ -2,17 +2,13 @@ package com.github.bonnellap.mh_rise_talisman_organizer.application;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.util.Callback;
 
 public class FilteredComboBox<T> extends ComboBox<T> {
 
@@ -40,6 +36,35 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 					}
 					// Prevent the combo box from closing
 					event.consume();
+				} else if (event.getCode() == KeyCode.TAB && event.getEventType() == KeyEvent.KEY_PRESSED) {
+					// Select option and move focus to the next box
+					KeyEvent enterPress = new KeyEvent(
+							null,
+							null,
+							KeyEvent.KEY_PRESSED,
+							"",
+							"",
+							KeyCode.ENTER,
+							false,
+							false,
+							false,
+							false
+							);
+					KeyEvent enterRelease = new KeyEvent(
+							null,
+							null,
+							KeyEvent.KEY_RELEASED,
+							"",
+							"",
+							KeyCode.ENTER,
+							false,
+							false,
+							false,
+							false
+							);
+					fireEvent(enterPress);
+					fireEvent(enterRelease);
+					fireEvent(event);
 				}
 			}
 		});
@@ -56,53 +81,34 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 	}
 	
 	private class ComboBoxKeyEvent implements EventHandler<KeyEvent> {
-		private boolean tabbing = false;
-		
 		@Override
 		public void handle(KeyEvent event) {
-			if (event.getEventType() == KeyEvent.KEY_RELEASED) {
-				if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
-					typedString = "";
-					return;
-				} else if (event.getCode() == KeyCode.TAB) {
-					/*if (!tabbing) {
-						System.out.println("tabbing");
-						tabbing = true;
-						// Press Enter
-						fireEvent(new KeyEvent(null, null, KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
-						// Release Enter
-						fireEvent(new KeyEvent(null, null, KeyEvent.KEY_RELEASED, "", "", KeyCode.ENTER, false, false, false, false));
-						// Press Tab
-						fireEvent(new KeyEvent(null, null, KeyEvent.KEY_PRESSED, "", "\t", KeyCode.TAB, event.isShiftDown(), false, false, false));
-						// Release Tab
-						fireEvent(new KeyEvent(null, null, KeyEvent.KEY_RELEASED, "", "\t", KeyCode.TAB, event.isShiftDown(), false, false, false));
-					}
-					tabbing = false;
-					event.consume();*/
-					show();
-					return;
-				} else if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.ENTER) {
-					// Clear typedString
-					typedString = "";
-					return;
-				} else if (event.getCode() == KeyCode.BACK_SPACE && typedString.length() > 0) {
-					// Remove last character from typedString
-					typedString = typedString.substring(0, typedString.length() - 1);
-				} else if (event.getText().matches("[\\S ]")) {
-					typedString += event.getText().toLowerCase();
-				}
-				
-				System.out.println(typedString);
-				for (T item : getItems()) {
-					if (getConverter().toString(item).toLowerCase().startsWith(typedString.toLowerCase())) {
-						// Select correct item
-						getSelectionModel().select(item);
-						
-						// Scroll to correct item
-						ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) getSkin();
-						((ListView<?>) skin.getPopupContent()).scrollTo(getSelectionModel().getSelectedIndex());
-						break;
-					}
+			if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
+				typedString = "";
+				return;
+			} else if (event.getCode() == KeyCode.TAB) {
+				show();
+				return;
+			} else if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.ENTER) {
+				// Clear typedString
+				typedString = "";
+				return;
+			} else if (event.getCode() == KeyCode.BACK_SPACE && typedString.length() > 0) {
+				// Remove last character from typedString
+				typedString = typedString.substring(0, typedString.length() - 1);
+			} else if (event.getText().matches("[\\S ]")) {
+				typedString += event.getText().toLowerCase();
+			}
+			
+			for (T item : getItems()) {
+				if (getConverter().toString(item).toLowerCase().startsWith(typedString.toLowerCase())) {
+					// Select correct item
+					getSelectionModel().select(item);
+					
+					// Scroll to correct item
+					ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) getSkin();
+					((ListView<?>) skin.getPopupContent()).scrollTo(getSelectionModel().getSelectedIndex());
+					break;
 				}
 			}
 		}
@@ -114,65 +120,6 @@ public class FilteredComboBox<T> extends ComboBox<T> {
         } else {
             return getItems().get(getSelectionModel().getSelectedIndex());
         }
-	}
-	
-	/**
-	 * Presses the Enter key and then the Tab key
-	 */
-	private void handleTab(KeyEvent event) {
-		KeyEvent enterPress = new KeyEvent(
-				null,
-				null,
-				KeyEvent.KEY_PRESSED,
-				"",
-				"",
-				KeyCode.ENTER,
-				false,
-				false,
-				false,
-				false
-				);
-		KeyEvent enterRelease = new KeyEvent(
-				null,
-				null,
-				KeyEvent.KEY_RELEASED,
-				"",
-				"",
-				KeyCode.ENTER,
-				false,
-				false,
-				false,
-				false
-				);
-		KeyEvent tabPress = new KeyEvent(
-				null,
-				null,
-				KeyEvent.KEY_PRESSED,
-				"",
-				"\t",
-				KeyCode.TAB,
-				event.isShiftDown(),
-				false,
-				false,
-				false
-				);
-		KeyEvent tabRelease = new KeyEvent(
-				null,
-				null,
-				KeyEvent.KEY_RELEASED,
-				"",
-				"\t",
-				KeyCode.TAB,
-				event.isShiftDown(),
-				false,
-				false,
-				false
-				);
-		
-		this.fireEvent(enterPress);
-		this.fireEvent(enterRelease);
-		this.fireEvent(tabPress);
-		//this.fireEvent(tabRelease);
 	}
 	
 }

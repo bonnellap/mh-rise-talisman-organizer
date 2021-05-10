@@ -24,8 +24,6 @@ public class TalismanTable extends ArrayList<Talisman> {
 
 	private static final long serialVersionUID = -796283047451470205L;
 	
-	private static final String csvHeader = "Name1,Level1,Name2,Level2,Slot1,Slot2,Slot3";
-	
 	public TalismanTable() {};
 
 	/**
@@ -42,35 +40,30 @@ public class TalismanTable extends ArrayList<Talisman> {
 			fileReader = new FileReader(file);
 			csvReader = new BufferedReader(fileReader);
 			String line; // Full line of data from the csv
-			boolean headerLine = true; // Keeps track of the header line
 			while ((line = csvReader.readLine()) != null) {
-				if (!headerLine) {
-					// Splits the full line using the comma separator
-					String[] talismanArray = line.split(",");
+				// Splits the full line using the comma separator
+				String[] talismanArray = line.split(",");
 
-					// Gets all data from split line
-					List<Pair<Skill, Integer>> skillList = new ArrayList<Pair<Skill, Integer>>();
-					
-					skillList.add(new Pair<Skill, Integer>(SkillTable.getSkill(talismanArray[0]), Integer.parseInt(talismanArray[1])));
-					if (talismanArray.length > 2 && !talismanArray[2].equals("")) {
-						skillList.add(new Pair<Skill, Integer>(SkillTable.getSkill(talismanArray[2]), Integer.parseInt(talismanArray[3])));
-					}
-					List<Integer> slotList = new ArrayList<Integer>();
-					if (talismanArray.length > 4) {
-						slotList.add(Integer.parseInt(talismanArray[4]));
-					}
-					if (talismanArray.length > 5) {
-						slotList.add(Integer.parseInt(talismanArray[5]));
-					}
-					if (talismanArray.length > 6) {
-						slotList.add(Integer.parseInt(talismanArray[6]));
-					}
-
-					// Add skill to the data table
-					this.add(new Talisman(skillList, slotList));
-				} else {
-					headerLine = false;
+				// Gets all data from split line
+				List<Pair<Skill, Integer>> skillList = new ArrayList<Pair<Skill, Integer>>();
+				
+				skillList.add(new Pair<Skill, Integer>(SkillTable.getSkill(talismanArray[0]), Integer.parseInt(talismanArray[1])));
+				if (talismanArray.length > 2 && !talismanArray[2].equals("")) {
+					skillList.add(new Pair<Skill, Integer>(SkillTable.getSkill(talismanArray[2]), Integer.parseInt(talismanArray[3])));
 				}
+				List<Integer> slotList = new ArrayList<Integer>();
+				if (talismanArray.length > 4) {
+					slotList.add(Integer.parseInt(talismanArray[4]));
+				}
+				if (talismanArray.length > 5) {
+					slotList.add(Integer.parseInt(talismanArray[5]));
+				}
+				if (talismanArray.length > 6) {
+					slotList.add(Integer.parseInt(talismanArray[6]));
+				}
+
+				// Add skill to the data table
+				this.add(new Talisman(skillList, slotList));
 			}
 		} catch (IOException e) {
 			throw e;
@@ -168,10 +161,14 @@ public class TalismanTable extends ArrayList<Talisman> {
 				System.out.println("File created: " + file.getName());
 		    }
 			writer = new FileWriter(file.getAbsolutePath());
-			writer.write(csvHeader);
+			boolean firstLine = true;
 			for (Talisman t : this) {
-				writer.write("\r\n");
 				String talismanString = "";
+				if (!firstLine) {
+					talismanString += "\r\n";
+				} else {
+					firstLine = false;
+				}
 				// Add Talisman skills
 				List<Pair<Skill, Integer>> skillPairs = t.getSkillList();
 				talismanString += skillPairs.get(0).getValue0().name;

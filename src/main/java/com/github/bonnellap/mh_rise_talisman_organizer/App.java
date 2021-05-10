@@ -1,8 +1,10 @@
 package com.github.bonnellap.mh_rise_talisman_organizer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -36,7 +38,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -48,8 +49,6 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -70,20 +69,21 @@ public class App extends Application {
 	
 	private static Stage pStage = null;
 	public static Properties props = new Properties();
-	public static final String SETTINGS_PATH = "src/main/resources/app.properties";
-	public static final String SKILLS_PATH = "src/main/resources/skills.csv";
+	public static final String PROPS_PATH = "app.properties";
+	public static final String SKILLS_PATH = "skills.csv";
 	
 	//private static TableView<Talisman> table = new TableView<>();
 	
 	@Override
 	public void init() {
-		// Read settings file
+		// Read settings files
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		InputStream stream = classloader.getResourceAsStream("app.properties");
+		InputStream propsStream = classloader.getResourceAsStream(PROPS_PATH);
+		BufferedReader skillsReader = new BufferedReader(new InputStreamReader(classloader.getResourceAsStream(SKILLS_PATH)));
 		
 		try {
 			// Load properties from input stream
-			props.load(stream);
+			props.load(propsStream);
 			
 			if (props.getProperty("autoLoadTalismans") != null && props.getProperty("autoLoadTalismans").equals("true") && props.getProperty("talismanFilePath") != null) {
 				try {
@@ -93,13 +93,19 @@ public class App extends Application {
 					// Do nothing
 				}
 			}
+			
+			// Load skills
+			SkillTable.setSkills(skillsReader);
 		} catch (Exception e) {
 			e.printStackTrace();
 			showExceptionMsg("Unable to load or create settings file. Your settings may not be saved.", e);
 		} finally {
 			try {
-				if (stream != null) {
-					stream.close();
+				if (propsStream != null) {
+					propsStream.close();
+				}
+				if (skillsReader != null) {
+					skillsReader.close();
 				}
 			} catch (Exception e) {
 				// Do nothing
@@ -110,8 +116,6 @@ public class App extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			SkillTable.setSkills(SKILLS_PATH);
-			
 			// Create Panes
 			BorderPane root = new BorderPane();
 			GridPane skillAndTablePane = new GridPane();
@@ -147,7 +151,7 @@ public class App extends Application {
 			
 			// Create Table elements
 			TableView<Talisman> table = new TableView<>();
-			table.setPrefWidth(800);
+			table.setPrefSize(800, Integer.MAX_VALUE);
 			TableColumn<Talisman, String> skill1Col = new TableColumn<>("Skill 1");
 			TableColumn<Talisman, String> skill1NameCol = new TableColumn<>("Name");
 			TableColumn<Talisman, Integer> skill1LevelCol = new TableColumn<>("Level");
@@ -298,6 +302,7 @@ public class App extends Application {
 			table.getColumns().add(slot2Col);
 			table.getColumns().add(slot3Col);
 			table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 			table.setPlaceholder(new Label("No talismans in table"));
 			
 			// Create Buttons
@@ -309,9 +314,9 @@ public class App extends Application {
 			
 			// Create Labels
 			Label labelSkill1 = new Label("Skill 1 Name");
-			Label labelLevel1 = new Label("Skill 1 Level");
+			Label labelLevel1 = new Label("Level 1");
 			Label labelSkill2 = new Label("Skill 2 Name");
-			Label labelLevel2 = new Label("Skill 2 Level");
+			Label labelLevel2 = new Label("Level 2");
 			Label labelSlot1 = new Label("Slot 1");
 			Label labelSlot2 = new Label("Slot 2");
 			Label labelSlot3 = new Label("Slot 3");
@@ -458,7 +463,7 @@ public class App extends Application {
 				@Override
 				public void handle(ActionEvent event) {
 					TalismanTable foundTalismans = new TalismanTable();
-					for (Talisman t : table.getItems()) {
+					for (Talisman t : talismans) {
 						// Find skill 1
 						if (cbSkill1.getValue() != null) {
 							Pair<Skill, Integer> tSkill1 = t.getSkillPair(cbSkill1.getValue());
@@ -656,7 +661,7 @@ public class App extends Application {
 			
 			root.setTop(menuBar);
 			root.setCenter(skillAndTablePane);
-			Scene scene = new Scene(root,800,400);
+			Scene scene = new Scene(root, 800, 800);
 			pStage = primaryStage;
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("MH Rise Talisman Organizer");
@@ -670,6 +675,7 @@ public class App extends Application {
 	
 	@Override
 	public void stop() {
+		/*
 		// Save the properties
 		FileOutputStream out = null;
 		try {
@@ -688,26 +694,27 @@ public class App extends Application {
 				// Do nothing
 			}
 		}
+		*/
 	}
 	
 	private void closeWindowEvent(WindowEvent event) {
 		// Show popup if there is unsaved data
-        if(!isTalismanFileUpdated) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.getButtonTypes().remove(ButtonType.OK);
-            alert.getButtonTypes().add(ButtonType.CANCEL);
-            alert.getButtonTypes().add(ButtonType.YES);
-            alert.setTitle("Quit application");
-            alert.setContentText(String.format("You have unsaved changes to your talisman list.\nClose without saving?"));
-            alert.initOwner(pStage.getOwner());
-            Optional<ButtonType> res = alert.showAndWait();
+		if(!isTalismanFileUpdated) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.getButtonTypes().remove(ButtonType.OK);
+			alert.getButtonTypes().add(ButtonType.CANCEL);
+			alert.getButtonTypes().add(ButtonType.YES);
+			alert.setTitle("Quit application");
+			alert.setContentText(String.format("You have unsaved changes to your talisman list.\nClose without saving?"));
+			alert.initOwner(pStage.getOwner());
+			Optional<ButtonType> res = alert.showAndWait();
 
-            if(res.isPresent()) {
-                if(res.get().equals(ButtonType.CANCEL))
-                    event.consume();
-            }
-        }
-    }
+			if(res.isPresent()) {
+				if(res.get().equals(ButtonType.CANCEL))
+					event.consume();
+			}
+		}
+		}
 	
 	/**
 	 * Shows an error message alert
