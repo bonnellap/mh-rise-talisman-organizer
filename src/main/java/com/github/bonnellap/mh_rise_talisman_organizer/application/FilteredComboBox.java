@@ -83,7 +83,9 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 	private class ComboBoxKeyEvent implements EventHandler<KeyEvent> {
 		@Override
 		public void handle(KeyEvent event) {
-			if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
+			if (event.isShortcutDown() || event.isAltDown() || event.isControlDown()) {
+				return;
+			} else if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
 				typedString = "";
 				return;
 			} else if (event.getCode() == KeyCode.TAB) {

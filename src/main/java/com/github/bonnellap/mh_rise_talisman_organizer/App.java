@@ -2,7 +2,6 @@ package com.github.bonnellap.mh_rise_talisman_organizer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -49,6 +48,8 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -118,6 +119,7 @@ public class App extends Application {
 		try {
 			// Create Panes
 			BorderPane root = new BorderPane();
+			Scene scene = new Scene(root, 800, 800);
 			GridPane skillAndTablePane = new GridPane();
 			GridPane addSkillPane = new GridPane();
 			addSkillPane.setHgap(10);
@@ -133,7 +135,7 @@ public class App extends Application {
 			
 			// Create Menus
 			MenuBar menuBar = new MenuBar();
-			Menu menuFile = new Menu("File");
+			Menu menuFile = new Menu("_File");
 			MenuItem menuItemImport = new MenuItem("Import...");
 			MenuItem menuItemExport = new MenuItem("Export...");
 			MenuItem menuItemOptions = new MenuItem("Options");
@@ -310,7 +312,7 @@ public class App extends Application {
 			Button btnEditTalisman = new Button("Edit Talisman");
 			Button btnRemoveTalisman = new Button("Remove Talisman");
 			Button btnFilterTalisman = new Button("Filter Talismans");
-			Button btnResetFields = new Button("Reset Fields");
+			Button btnClearFields = new Button("Clear Fields");
 			
 			// Create Labels
 			Label labelSkill1 = new Label("Skill 1 Name");
@@ -530,7 +532,7 @@ public class App extends Application {
 					refreshTable(table);
 				}
 			};
-			btnResetFields.setOnAction(btnResetFieldsActionEvent);
+			btnClearFields.setOnAction(btnResetFieldsActionEvent);
 			
 			// Add import menu event handler
 			EventHandler<ActionEvent> menuItemImportActionEvent = new EventHandler<ActionEvent>() {
@@ -641,6 +643,27 @@ public class App extends Application {
 			    return row;
 			});
 			
+			// Add keyboard shortcuts
+			menuItemExport.setAccelerator(KeyCombination.keyCombination("shortcut+S"));
+			menuItemImport.setAccelerator(KeyCombination.keyCombination("shortcut+O"));
+			scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+				final KeyCombination ctrlA = KeyCombination.keyCombination("shortcut+A");
+				final KeyCombination ctrlE = KeyCombination.keyCombination("shortcut+E");
+				final KeyCombination ctrlF = KeyCombination.keyCombination("shortcut+F");
+				final KeyCombination ctrlR = KeyCombination.keyCombination("shortcut+R");
+				public void handle(KeyEvent event) {
+					if (ctrlA.match(event)) {
+						btnAddTalisman.fire();
+					} else if (ctrlE.match(event)) {
+						btnEditTalisman.fire();
+					} else if (ctrlF.match(event)) {
+						btnFilterTalisman.fire();
+					} else if (ctrlR.match(event)) {
+						btnRemoveTalisman.fire();
+					}
+				}
+			});
+			
 			// When a user doesn't click on an element
 			root.setOnMousePressed(e -> {
 				table.getSelectionModel().clearSelection();
@@ -651,7 +674,7 @@ public class App extends Application {
 			addSkillPane.addRow(0, labelSkill1, labelLevel1, labelSkill2, labelLevel2, labelSlot1, labelSlot2, labelSlot3);
 			addSkillPane.addRow(1, cbSkill1, cbLevel1, cbSkill2, cbLevel2, cbSlot1, cbSlot2, cbSlot3);
 			
-			buttonPane.addRow(0, btnAddTalisman, btnEditTalisman, btnRemoveTalisman, btnFilterTalisman, btnResetFields);
+			buttonPane.addRow(0, btnAddTalisman, btnEditTalisman, btnRemoveTalisman, btnFilterTalisman, btnClearFields);
 			
 			tablePane.addRow(0, table);
 			
@@ -659,9 +682,9 @@ public class App extends Application {
 			skillAndTablePane.addRow(1, buttonPane);
 			skillAndTablePane.addRow(2, tablePane);
 			
+			// Finalize the stage
 			root.setTop(menuBar);
 			root.setCenter(skillAndTablePane);
-			Scene scene = new Scene(root, 800, 800);
 			pStage = primaryStage;
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("MH Rise Talisman Organizer");
