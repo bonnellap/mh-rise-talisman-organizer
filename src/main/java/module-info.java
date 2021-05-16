@@ -3,6 +3,7 @@ module com.github.bonnellap.mh_rise_talisman_organizer {
 	requires javafx.base;
 	requires javafx.graphics;
 	requires javatuples;
+	requires transitive java.prefs;
     exports com.github.bonnellap.mh_rise_talisman_organizer;
     exports com.github.bonnellap.mh_rise_talisman_organizer.application;
     exports com.github.bonnellap.mh_rise_talisman_organizer.skill;

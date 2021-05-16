@@ -2,7 +2,6 @@ package com.github.bonnellap.mh_rise_talisman_organizer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -11,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.prefs.Preferences;
 
 import org.javatuples.Pair;
 
@@ -69,42 +68,30 @@ public class App extends Application {
 	private boolean isTalismanFileUpdated = true;
 	
 	private static Stage pStage = null;
-	public static Properties props = new Properties();
-	public static final String PROPS_PATH = "app.properties";
+	public static Preferences prefs = null;
 	public static final String SKILLS_PATH = "skills.csv";
-	
-	//private static TableView<Talisman> table = new TableView<>();
 	
 	@Override
 	public void init() {
 		// Read settings files
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		InputStream propsStream = classloader.getResourceAsStream(PROPS_PATH);
 		BufferedReader skillsReader = new BufferedReader(new InputStreamReader(classloader.getResourceAsStream(SKILLS_PATH)));
 		
 		try {
-			// Load properties from input stream
-			props.load(propsStream);
-			
-			if (props.getProperty("autoLoadTalismans") != null && props.getProperty("autoLoadTalismans").equals("true") && props.getProperty("talismanFilePath") != null) {
-				try {
-					talismans = new TalismanTable(new File(props.getProperty("talismanFilePath")));
-					//refreshTable(table);
-				} catch (Exception e) {
-					// Do nothing
-				}
-			}
-			
 			// Load skills
 			SkillTable.setSkills(skillsReader);
+			
+			// Get user preferences
+			prefs = Preferences.userRoot().node(this.getClass().getName());
+			// Auto load talismans
+			if (prefs.getBoolean("autoLoadTalismans", false) && !prefs.get("talismanFilePath", "").equals("")) {
+				talismans = new TalismanTable(new File(prefs.get("talismanFilePath", null)));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			showExceptionMsg("Unable to load or create settings file. Your settings may not be saved.", e);
 		} finally {
 			try {
-				if (propsStream != null) {
-					propsStream.close();
-				}
 				if (skillsReader != null) {
 					skillsReader.close();
 				}
@@ -306,6 +293,8 @@ public class App extends Application {
 			table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 			table.setPlaceholder(new Label("No talismans in table"));
+			obsoleteTalismans = talismans.optimizeTalismans();
+			refreshTable(table);
 			
 			// Create Buttons
 			Button btnAddTalisman = new Button("Add Talisman");
@@ -540,9 +529,9 @@ public class App extends Application {
 				public void handle(ActionEvent event) {
 					fileChooser.setTitle("Import Talisman File");
 					fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Talisman File", "*.csv"));
-					if (props.getProperty("talismanFilePath") != null) {
+					if (prefs.get("talismanFilePath", null) != null) {
 						try {
-							File intialFile = new File(props.getProperty("talismanFilePath"));
+							File intialFile = new File(prefs.get("talismanFilePath", ""));
 							fileChooser.setInitialDirectory(intialFile.getParentFile());
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -557,7 +546,7 @@ public class App extends Application {
 					}
 					if (file != null) {
 						try {
-							props.setProperty("talismanFilePath", file.getAbsolutePath());
+							prefs.put("talismanFilePath", file.getAbsolutePath());
 							talismans = new TalismanTable(file);
 							obsoleteTalismans = talismans.optimizeTalismans();
 							isTalismanFileUpdated = true;
@@ -576,9 +565,9 @@ public class App extends Application {
 				public void handle(ActionEvent event) {
 					fileChooser.setTitle("Export Talisman File");
 					fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Talisman File", "*.csv"));
-					if (props.getProperty("talismanFilePath") != null) {
+					if (prefs.get("talismanFilePath", null) != null) {
 						try {
-							File intialFile = new File(props.getProperty("talismanFilePath"));
+							File intialFile = new File(prefs.get("talismanFilePath", ""));
 							fileChooser.setInitialDirectory(intialFile.getParentFile());
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -593,7 +582,7 @@ public class App extends Application {
 					}
 					if (file != null) {
 						try {
-							props.setProperty("talismanFilePath", file.getAbsolutePath());
+							prefs.put("talismanFilePath", file.getAbsolutePath());
 							talismans.writeTalismansToFile(file);
 							isTalismanFileUpdated = true;
 						} catch (Exception e) {
