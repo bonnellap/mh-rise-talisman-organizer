@@ -3,7 +3,7 @@ An application that helps organize talismans/charms in Monster Hunter: Rise. Tal
 
 ## Features
 - Add, remove, edit and filter your talisman list
-- Automatically highlight any obsolete talismans
+- Automatically highlight any obsolete talismans for melding
 - Import and export your talisman list
 
 ## License
