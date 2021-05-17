@@ -14,14 +14,95 @@ public class TalismanComparison {
 	public static String explain = "";
 	public static List<Skill> t1DecosNeeded = new ArrayList<Skill>();
 	public static List<Skill> t2DecosNeeded = new ArrayList<Skill>();
-
+	
 	/**
 	 * Compares 2 Talismans and determines which Talisman makes the other obsolete using decorations and slot counts.
 	 * @param t1
 	 * @param t2
 	 * @return -1 if t2 makes t1 obsolete, 1 if t1 makes t2 obsolete, or 0 if neither make the other obsolete.
 	 */
-	public static int compare(Talisman t1, Talisman t2) {
+	public static int compare(Talisman talisman1, Talisman talisman2) {
+		explain = "";
+		Talisman t1 = new Talisman(talisman1);
+		Talisman t2 = new Talisman(talisman2);
+		boolean t2WithinT1 = true;
+		boolean t1WithinT2 = true;
+		boolean equalSlots = talisman1.getSlotList().equals(talisman2.getSlotList());
+		t1DecosNeeded.clear();
+		t2DecosNeeded.clear();
+		
+		// Try to make t2 within t1
+		for (Pair<Skill, Integer> t2SkillPair : talisman2.getSkillList()) {
+			// The amount of skill levels needed as decorations
+			int remainingSkillLevels = t2SkillPair.getValue1() - t1.getSkillLevel(t2SkillPair.getValue0());
+			while (remainingSkillLevels > 0 && t2WithinT1) {
+				// Try to add the skill as decorations to t1
+				int wastedSlots = t1.removeSlot(t2SkillPair.getValue0().slot);
+				if (wastedSlots == -1) {
+					t2WithinT1 = false;
+				} else {
+					t1DecosNeeded.add(t2SkillPair.getValue0());
+				}
+				remainingSkillLevels--;
+			}
+			if (!t2WithinT1) {
+				break;
+			}
+		}
+		t2WithinT1 = t2WithinT1 && (compareSlotLists(t1, talisman2) > 0 || t1.getSlotList().equals(talisman2.getSlotList()));
+		
+		// Try to make t1 within t2
+		for (Pair<Skill, Integer> t1SkillPair : talisman1.getSkillList()) {
+			// The amount of skill levels needed as decorations
+			int remainingSkillLevels = t1SkillPair.getValue1() - t2.getSkillLevel(t1SkillPair.getValue0());
+			while (remainingSkillLevels > 0 && t1WithinT2) {
+				// Try to add the skill as decorations to t2
+				int wastedSlots = t2.removeSlot(t1SkillPair.getValue0().slot);
+				if (wastedSlots == -1) {
+					t1WithinT2 = false;
+				} else {
+					t2DecosNeeded.add(t1SkillPair.getValue0());
+				}
+				remainingSkillLevels--;
+			}
+			if (!t1WithinT2) {
+				break;
+			}
+		}
+		t1WithinT2 = t1WithinT2 && (compareSlotLists(talisman1, t2) < 0 || t2.getSlotList().equals(talisman1.getSlotList()));
+		
+		//explain += "t1 = " + talisman1.toString();
+		//explain += ", t2 = " + talisman2.toString();
+		//explain += ", t2 within t1 " + t2WithinT1;
+		//explain += ", t1 within t2 " + t1WithinT2;
+		//explain += ", slotComparison1 = " + compareSlotLists(t1, talisman2);
+		//explain += ", slotComparison2 = " + compareSlotLists(talisman1, t2);
+		//explain += ", slotComparison = " + compareSlotLists(talisman1, talisman2);
+		//explain += ", equalSlots " + equalSlots;
+		//System.out.println("\ntClone1 = " + tClone1.toString());
+		//System.out.println("tClone2 = " + tClone2.toString());
+		//System.out.println("t2 within t1 = " + t2WithinT1);
+		//System.out.println("t1 within t2 = " + t1WithinT2);
+		//printList(t1WastedSlots);
+		//printList(t2WastedSlots);
+		//System.out.println("slot comparison = " + slotComparison);
+		if (t2WithinT1 && !t1WithinT2) {
+			int slotCompare = compareSlotLists(talisman1, talisman2);
+			if (slotCompare > 0 || equalSlots) {
+				return 1;
+			}
+		} else if (t1WithinT2 && !t2WithinT1) {
+			int slotCompare = compareSlotLists(talisman1, talisman2);
+			if (slotCompare < 0 || equalSlots) {
+				return -1;
+			}
+		}
+		
+		return 0;
+	}
+
+	/*
+	public static int compareOld(Talisman t1, Talisman t2) {
 		explain = "";
 		
 		Talisman tClone1 = new Talisman(t1);
@@ -111,7 +192,7 @@ public class TalismanComparison {
 		}
 		
 		return 0;
-	}
+	}*/
 	
 	public static void printList(List<Integer> list) {
 		System.out.print("[");
@@ -124,16 +205,16 @@ public class TalismanComparison {
 		System.out.println("]");
 	}
 	
-	public static int compareSlotLists(Talisman t1, Talisman t2) {
-		return compareSlotLists(t1.getSlotList(), t2.getSlotList());
-	}
-	
 	/**
 	 * Compares the slots on Talisman t1 and t2. Does not compare skills.
 	 * @param t1
 	 * @param t2
 	 * @return 1 if t1 makes t2 obsolete, -1 if t2 makes t1 obsolete, or 0 if neither Talisman makes the other obsolete
 	 */
+	public static int compareSlotLists(Talisman t1, Talisman t2) {
+		return compareSlotLists(t1.getSlotList(), t2.getSlotList());
+	}
+	
 	public static int compareSlotLists(List<Integer> slotList1, List<Integer> slotList2) {
 		List<Integer> t1Slots = new ArrayList<>(slotList1);
 		List<Integer> t2Slots = new ArrayList<>(slotList2);

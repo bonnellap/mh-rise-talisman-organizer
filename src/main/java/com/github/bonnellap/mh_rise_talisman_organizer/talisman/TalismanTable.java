@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.javatuples.Pair;
 
@@ -111,34 +110,27 @@ public class TalismanTable extends ArrayList<Talisman> {
 		TalismanTable tableClone = new TalismanTable(this);
 		TalismanTable obsoleteTalismans = new TalismanTable();
 		
-		ListIterator<Talisman> i = tableClone.listIterator();
-		while (i.hasNext()) {
-			Talisman t1 = i.next();
-			ListIterator<Talisman> j = tableClone.listIterator();
-			while (j.hasNext()) {
-				Talisman t2 = j.next();
-				if (t1 == t2) {
-					// Don't compare a Talisman to itself
-					continue;
-				}
+		for (int i = 0; i < tableClone.size(); i++) {
+			Talisman t1 = tableClone.get(i);
+			for (int j = i+1; j < tableClone.size(); j++) {
+				Talisman t2 = tableClone.get(j);
 				int comparison = TalismanComparison.compare(t1, t2);
+				if (explain && !TalismanComparison.explain.equals("")) System.out.println(TalismanComparison.explain);
 				if (comparison == -1) {
 					// t1 is obsolete
-					if (!obsoleteTalismans.contains(t1) ) {
-						if (explain) System.out.println("{" + t1.toString() + "} < {" + t2.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t2DecosNeeded));
-						obsoleteTalismans.add(t1);
-					}
-					i.remove();
+					if (explain) System.out.println("{" + t1.toString() + "} < {" + t2.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t2DecosNeeded));
+					obsoleteTalismans.add(t1);
 					break;
 				} else if (comparison == 1) {
-					// t2 is obsolete
-					if (!obsoleteTalismans.contains(t2) ) {
-						if (explain) System.out.println("{" + t2.toString() + "} < {" + t1.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t1DecosNeeded));
-						obsoleteTalismans.add(t2);
-					}
+					if (explain) System.out.println("{" + t2.toString() + "} < {" + t1.toString() + "} Decorations Needed: " + skillListToString(TalismanComparison.t1DecosNeeded));
+					obsoleteTalismans.add(t2);
+					tableClone.remove(j);
+					j--;
 				} else if (t1.equals(t2)) {
 					if (explain) System.out.println("{" + t2.toString() + "} = {" + t1.toString() + "} Duplicated Talisman");
 					obsoleteTalismans.add(t2);
+					tableClone.remove(j);
+					j--;
 				}
 			}
 		}
