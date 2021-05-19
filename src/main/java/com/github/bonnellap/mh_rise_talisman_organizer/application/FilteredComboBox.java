@@ -22,6 +22,7 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 		// Set key handler
 		ComboBoxKeyEvent keyEventHandler = new ComboBoxKeyEvent();
 		setOnKeyReleased(keyEventHandler);
+		setOnKeyPressed(keyEventHandler);
 		
 		
 		// Prevents the space bar from closing the combo box
@@ -38,30 +39,8 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 					event.consume();
 				} else if (event.getCode() == KeyCode.TAB && event.getEventType() == KeyEvent.KEY_PRESSED) {
 					// Select option and move focus to the next box
-					KeyEvent enterPress = new KeyEvent(
-							null,
-							null,
-							KeyEvent.KEY_PRESSED,
-							"",
-							"",
-							KeyCode.ENTER,
-							false,
-							false,
-							false,
-							false
-							);
-					KeyEvent enterRelease = new KeyEvent(
-							null,
-							null,
-							KeyEvent.KEY_RELEASED,
-							"",
-							"",
-							KeyCode.ENTER,
-							false,
-							false,
-							false,
-							false
-							);
+					KeyEvent enterPress = new KeyEvent(null, null, KeyEvent.KEY_PRESSED, "", "",KeyCode.ENTER, false, false, false, false);
+					KeyEvent enterRelease = new KeyEvent(null, null, KeyEvent.KEY_RELEASED, "", "", KeyCode.ENTER, false, false, false, false);
 					fireEvent(enterPress);
 					fireEvent(enterRelease);
 					fireEvent(event);
@@ -83,34 +62,44 @@ public class FilteredComboBox<T> extends ComboBox<T> {
 	private class ComboBoxKeyEvent implements EventHandler<KeyEvent> {
 		@Override
 		public void handle(KeyEvent event) {
-			if (event.isShortcutDown() || event.isAltDown() || event.isControlDown()) {
-				return;
-			} else if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
-				typedString = "";
-				return;
-			} else if (event.getCode() == KeyCode.TAB) {
-				show();
-				return;
-			} else if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.ENTER) {
-				// Clear typedString
-				typedString = "";
-				return;
-			} else if (event.getCode() == KeyCode.BACK_SPACE && typedString.length() > 0) {
-				// Remove last character from typedString
-				typedString = typedString.substring(0, typedString.length() - 1);
-			} else if (event.getText().matches("[\\S ]")) {
-				typedString += event.getText().toLowerCase();
+			if (event.getEventType() == KeyEvent.KEY_RELEASED) {
+				// Key release handler
+				if (event.getCode() == KeyCode.TAB) {
+					show();
+					return;
+				}
 			}
-			
-			for (T item : getItems()) {
-				if (getConverter().toString(item).toLowerCase().startsWith(typedString.toLowerCase())) {
-					// Select correct item
-					getSelectionModel().select(item);
-					
-					// Scroll to correct item
-					ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) getSkin();
-					((ListView<?>) skin.getPopupContent()).scrollTo(getSelectionModel().getSelectedIndex());
-					break;
+			if(event.getEventType() == KeyEvent.KEY_PRESSED) {
+				// Key press handler
+				if (event.isShortcutDown() || event.isAltDown() || event.isControlDown()) {
+					return;
+				} else if (event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
+					typedString = "";
+					return;
+				} else if (event.getCode() == KeyCode.TAB) {
+					//show();
+					return;
+				} else if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.ENTER) {
+					// Clear typedString
+					typedString = "";
+					return;
+				} else if (event.getCode() == KeyCode.BACK_SPACE && typedString.length() > 0) {
+					// Remove last character from typedString
+					typedString = typedString.substring(0, typedString.length() - 1);
+				} else if (event.getText().matches("[\\S ]")) {
+					typedString += event.getText().toLowerCase();
+				}
+				
+				for (T item : getItems()) {
+					if (getConverter().toString(item).toLowerCase().startsWith(typedString.toLowerCase())) {
+						// Select correct item
+						getSelectionModel().select(item);
+						
+						// Scroll to correct item
+						ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) getSkin();
+						((ListView<?>) skin.getPopupContent()).scrollTo(getSelectionModel().getSelectedIndex());
+						break;
+					}
 				}
 			}
 		}

@@ -70,6 +70,7 @@ public class App extends Application {
 	private static Stage pStage = null;
 	public static Preferences prefs = null;
 	public static final String SKILLS_PATH = "skills.csv";
+	public static final boolean DEBUG = false;
 	
 	@Override
 	public void init() {
@@ -518,6 +519,9 @@ public class App extends Application {
 					cbSlot1.setValue(null);
 					cbSlot2.setValue(null);
 					cbSlot3.setValue(null);
+					if (DEBUG) {
+						obsoleteTalismans = talismans.optimizeTalismans(true);
+					}
 					refreshTable(table);
 				}
 			};

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.bonnellap</groupId>
 	<artifactId>mh-rise-talisman-organizer</artifactId>
-	<version>0.0.2-alpha</version>
+	<version>0.1.0-beta</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
